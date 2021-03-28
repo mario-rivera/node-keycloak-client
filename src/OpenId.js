@@ -73,15 +73,20 @@ module.exports = class OpenId
 
             res.on('end', () => {
                 let error = null;
+
                 body = body.toString();
+                if (!res.headers['content-length'] || parseInt(res.headers['content-length']) < 1) {
+                    body = null;
+                }
     
                 if (res.statusCode < 200 || res.statusCode >= 300) {
                     error = new Error(`Response exception: ${res.statusCode} ${res.statusMessage}`);
-                } else if (res.headers['content-type'] !== 'application/json') {
+                } else if (res.headers['content-type'] && res.headers['content-type'] !== 'application/json') {
                     error = new Error("Expected json got " + res.headers['content-type'] + " instead");
                 }
 
                 if (error) {
+                    error.name = "OpenID error";
                     error.statusCode = res.statusCode;
                     error.headers = res.headers;
                     error.body = body;
@@ -89,7 +94,7 @@ module.exports = class OpenId
                     reject(error);
                 }
 
-                resolve(body.toString());
+                resolve(body);
             });
         });
 
