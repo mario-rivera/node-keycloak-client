@@ -1,0 +1,27 @@
+version: '3.7'
+
+services:
+
+  keycloak:
+    image: jboss/keycloak:12.0.4
+    environment:
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: password
+      JAVA_OPTS_APPEND: "-Dkeycloak.profile.feature.upload_scripts=enabled -Dkeycloak.profile.feature.admin_fine_grained_authz=enabled -Dkeycloak.profile.feature.token_exchange=enabled"
+    ports:
+      - "8080:8080"
+    networks: 
+      - default
+
+  node:
+    image: node:14.16.0-buster-slim
+    working_dir: /code
+    volumes:
+      - .:/code
+    command: bash
+    networks: 
+      - default
+
+networks:
+  default:
+    name: local
